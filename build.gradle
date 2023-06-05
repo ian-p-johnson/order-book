@@ -1,0 +1,68 @@
+plugins {
+    id 'java'
+    id "me.champeau.jmh" version "0.7.0"
+    id 'checkstyle'
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    implementation group: 'fastutil', name: 'fastutil', version: '5.0.9'
+    implementation group: 'org.hdrhistogram', name: 'HdrHistogram', version: '2.1.12'
+    implementation group: 'org.decimal4j', name: 'decimal4j', version: '1.0.3'
+    implementation group: 'exchange.core2', name: 'collections', version: '0.5.1'
+    implementation group: 'org.agrona', name: 'Agrona', version: '0.9.1'
+    implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
+
+
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+
+    testImplementation 'org.mockito:mockito-core:5.2.0'
+    testImplementation 'org.mockito:mockito-inline:5.2.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.2.0'
+
+    implementation 'org.projectlombok:lombok:1.18.26'
+    compileOnly 'org.projectlombok:lombok:1.18.26'
+    annotationProcessor 'org.projectlombok:lombok:1.18.26'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+
+    implementation 'org.openjdk.jmh:jmh-core:1.36'
+    jmhImplementation 'org.openjdk.jmh:jmh-core:1.36'
+    annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.36'
+}
+
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+        showStandardStreams = true
+    }
+}
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
+jmh {
+    benchmarkMode = ['thrpt'] // Benchmark mode. Available modes are: [
+    profilers = [ "gc" ]
+    warmupIterations = 1
+    iterations = 1
+    fork = 1
+    jmhTimeout = "60s"
+    timeUnit = "ms"
+    failOnError = true
+//    jvm = '/home/ianj/dev/java/zulu8.70.0.23-ca-jdk8.0.372-linux_x64/bin/java'
+    jvm = '/home/ianj/dev/java/zulu11.64.19-ca-jdk11.0.19-linux_x64/bin/java'
+//    jvm = '/home/ianj/dev/java/zulu17.42.19-ca-jdk17.0.7-linux_x64/bin/java'
+//    jvm = '/home/ianj/dev/java/zulu19.32.13-ca-jdk19.0.2-linux_x64/bin/java'
+//    jvm = '/home/ianj/dev/java/zulu20.30.11-ca-jdk20.0.1-linux_x64/bin/java'
+}

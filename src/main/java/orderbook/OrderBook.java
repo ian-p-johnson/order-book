@@ -1,0 +1,85 @@
+package orderbook;
+
+public interface OrderBook {
+
+    @FunctionalInterface
+    interface PriceLevel {
+        boolean more(int entryPx, int entrySize);
+    }
+
+    int NO_PRICE = -1;  // Invalid or no Price
+
+    /**
+     * Add, Update or Remove a price level from one side of an order book
+     * Adds a new entry if it does not already exist on that side
+     * Updates the quantity for a level that exists on that side
+     * If quantity = 0, then remove that price level from that side
+     * There are 0 or 1 quantity associated with a given price level for a given side
+     *
+     * @param side     to operate on
+     * @param price    to add, modify, remove
+     * @param quantity to add, modify - to remove, specify 0
+     * @return the order book
+     */
+    OrderBook add(Side side, int price, int quantity);
+
+    /**
+     * Gets the total size available up to the specified level on that side of the book
+     * An empty price level count as 0 size
+     * An empty price level does not count to the levels consumed
+     * If the side is exhausted, no error wil lbe emitted and no further size will be accumulated
+     *
+     * @param side  to access
+     * @param level to decend to
+     * @return the total size available - 0 if none
+     */
+    int getSizeUpToLevel(Side side, int level);
+
+    /**
+     * Derives the mid-price from top of book bid/ask - applying FLOOR rounding
+     *
+     * @return Could return NO_PRICE if either a bid or offer is not present
+     */
+    int getMidPrice();
+
+    /**
+     * Returns the number of non zero quantity prices on the specified side
+     *
+     * @param side to access
+     * @return the total number of none 0 levels available - 0 if none
+     */
+    int depth(Side side);
+    /*
+        Extracts the top levels of an orderbook,copying them into the supplied bid/offer arrays
+        It performs no explicit bounds checking
+     */
+
+    /**
+     * Iterates through the specified side of the book, stopping
+     * when it runs out of levels or the consumer sates that he does not require any more
+     * The order of iteration will be the preferred ordering of the book
+     * i.e Highest Bid first, Lowest Offer first
+     *
+     * @param side       to access
+     * @param priceLevel to call with each level
+     */
+    void forEach(Side side, PriceLevel priceLevel);
+
+    /**
+     * Extracts the top levels of an orderbook,copying them into the supplied bid/offer arrays
+     * It performs no explicit bounds checking, leaving that to defaultjava behaviour
+     *
+     * @param side      Bid or Offer side
+     * @param level     How many levels deep into the book to extract
+     * @param outPrices A 0 indexed array to extract price into - 0 is "best" (so highest Bid and lowest Offer)
+     * @param outQty    A 0 indexed array to extract quantity into- each element corresponds to the same position on outPrices
+     */
+    void getLevels(Side side, int level, int[] outPrices, int[] outQty);
+
+    /**
+     * Clears all price./quantities from the book
+     *
+     * @return this order book
+     */
+    OrderBook clear();
+}
