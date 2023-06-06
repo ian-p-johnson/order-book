@@ -4,30 +4,28 @@
 1: 220 12.24 | 12.54 500
 2: 150 12.14 | 12.64 300
 ```
-A set of bid and offer prices, in order, about a gap (usually) called the spread. 
-The bids are to pay a specific amount at a specific price and an offer is to sell 
-at a specific price. This is known as a Limit Order Book (LOB)
+A set of bid and offer prices, in price order, about a gap termed the spread.
+The bids are to pay a specific amount at a specific price and an offer is to sell
+a specific amount at a specific price. This is a Limit Order Book (LOB)
 
-Some forms of LOB contain a number of independent quantity entries at each price level (one for each 
-entry at that price) , some contain an aggregate quantity at that price level. 
-The prices are arranged on 2 sides - BIDS & OFFERS(or ASKS) and are ordered by price. 
-A matching engine will generally match against the highest BID (when selling) or 
-lowest OFFER (when buying) according to matching rules. Not all price levels 
-have a quantity 
+Some forms of LOB contain multiple independent quantity entries at each price level (one for each
+entry at that price) , some contain an aggregate quantity at that price level.
+The prices are arranged on 2 sides - BIDS & OFFERS(or ASKS) and are ordered by price.
+A matching engine will generally match against the highest BID (when selling) or
+lowest OFFER (when buying) according to matching rules. Not all price levels
+have a quantity
 
-For some usages, knowing the quantity available at a price level is enough (e.g 
+For some use-cases, knowing the quantity available at a price level is enough (e.g. 
 for some market making or liquidity sensitive trading) and for others, additional information 
-is needed (e.g. exchanges where trades are matched and managed, order numbers, ..)
+is needed (e.g. exchanges where trades are matched/managed, order numbers, ..)
 
-Most, but not all LOB support Price/Time ordering - where price has higher priority 
-and time lower priority. You match against "better" prices first and then "older" 
-orders at a given price level. 
+Most, but not all LOB support price/time ordering - where price has higher priority 
+and time lower priority. You match against better prices first and then orders placed earlier at a given price level before matching against later orders at that price.  
 
-Any structure maintaining an order book has characteristics and a specification 
-stating whether it implements aggregation at a price, time ordering, sparse levels 
+Any structure maintaining an order book has characteristics describing  whether it implements aggregation at a price, time ordering, sparse levels 
 (price with no quantity) as well as the range of prices and quantities it can support.
 
-#### I will present here a number of Order Book implementations, each with different characteristics. There is no single best implementation, and each should be selected according to requirements
+### I will present here a number of Order Book implementations, each with different characteristics. There is no single best implementation, and one should be selected for each use-case according to requirements
 
 These specification asses the capabilities across the following requirements:
 * Performance
@@ -37,7 +35,7 @@ and significant garbage generation will likely lead to garbage collection pauses
 * Resource Usage - often many order books are required - one for each symbol and often one for each connection. 
 Total resource usage can be significant so the resource usage should be a factor in selection 
 
-## Book Int2Int
+## BookFastUtil (Int2Int)
 <br>**Keys**: int32 - +/- 2B - (possible to implement unsigned int32 with some changes)
 <br>**Values**: int32
 <br>**Resource Usage**: low - dynamically allocate leaves in a tree structure
@@ -62,7 +60,7 @@ on-CPU caches. An ART combines multiple entries onto nodes so intra-node searche
 ART implements a long key (ideal for price) and can support multiple entries at a price (using stamp prioritized 
 buckets) It also implements a form of object pooling to reduce the pressure due to garbage generation. 
 
-It was, in general , much faster for common insertions/deletions than the **BookInt2Int** but much slower that the 
+It was, in general , much faster for common insertions/deletions than the **BookFastUtil Int2Int** but much slower that the 
 **BookDirect**. By design it is supposed to be quite frugal in allocations but I was unable to verify that - i will be 
 revisiting that aspect.   
 
@@ -80,10 +78,10 @@ implementation is relatively simple, but some operations have a notable costs de
 the sparsity of prices near the top of book where most activity tends to take place. 
 Although intuitively it would seem it would require excessive work to scan over prices with no quantity, 
 the nature of modern CPU/GPU and efficient data locality means that adjacent price access is mechanically 
-efficient, taking advantage of cache architecture and speculative fetching from memory. The 
+efficient, taking advantage of cache architecture and speculative fetching from main memory. The 
 actual performance of a Direct access book should be considered in the light of the mix 
 of operations expected. A typical current day CPU has a cacheline of 64 bytes, meaning we can 
-fit the top 16 entries in 1 line. The active areas does shift so a lot of activity overlaps a small number of cache lines 
+fit the top 16 entries in 1 line. The active areas do shift so a lot of activity overlaps a small number of cache lines 
 
 **No other information than price/quantity is stored**
 
@@ -97,18 +95,18 @@ CPU usage.
 becomes more expensive
 
 ## Book Direct Sliding
-**(A Direct window, backed by a more general book, probably the ART below  - Implementation out of scope here)**
+**(A Direct window, backed by a more general book, probably the ART - Implementation out of scope here)**
 
 Addresses the "hot" activity area, taking advantage of locality of access near top of book 
 
 It allocates a "window" over the active area and operates a Direct Book in that range and any updates outside that 
 range are handled by a "backing" book with a more flexible key/value holding capability. The window implements an effective read/write 
-cache The window is implemented in a "wrapping" manner allowing the centre price and local
+cache. The window is implemented in a "wrapping" manner allowing the centre price and local
 activity to move outside of the original window array space, wrapping around using a price 
 mask/offset to identify the physical array offset into the Direct Book. 
 
-In many ways, it resembles a layered cache, but is useful in environments where caches are not so abundant ie. GPU
-A layered book is capable of representing the dense prices near the head and efficient sparse prices outside of the 
+In many ways, it resembles a layered CPU cache, but is useful in environments where fast caches are not so abundant, for example a GPU.
+A layered book is capable of representing the dense prices near the activity head and efficient handle sparse prices outside of the 
 sliding window. It is a context sensitive cache  
 
 If the requirement is to maintain a sufficiently shallow book then the sliding window may be sufficient and no backing 
@@ -117,8 +115,7 @@ the backing book to the active window can be used to "re-centre" the window arou
 activity.
 
 A larger window will reduce re-balancing activity, perhaps sufficiently that it 
-retains most of the performance characteristics of the simple Direct Book. Any  
-re-organisation/paging between layers could take place on the "Hot path" when it is required, or in a background 
+retains most of the performance characteristics of the simple Direct Book. Any re-organisation/paging between layers could take place on the "Hot path" when it is required, or in a background 
 thread that can proactively identify the impending requirement for a migration from/to the backing 
 book without requiring a physical lock on the sliding window. This operation could be very efficient 
 in the sliding window because all locations are likely efficiently accessed in a modern CPU/GPU. 
@@ -166,17 +163,17 @@ MATICUSDT   42,843,575     1  17.9  60.9  76.8  83.8  85.8  87.5  89.9  91.9
   UMAUSDT    1,779,407    10  20.2  73.7  83.8  88.6  92.0  97.5  99.4  99.7
 ```
 
-Note that in many cases a 10-50 level deep direct window  will handle 90% of updates, 
+Note that in many cases a 10-50 level deep direct window  will accommodate 90% of updates, 
 leaving just a few troublesome symbols (e.g. BTCUSDT) where window depth of 1000 or more would be 
 needed to capture most of the activity. 
 1000 levels is 1000 x sizeof(int) (assuming int32 quantity = 4KB) - not a problem for modern 
 CPU architecture, well within L2/L3 cache. The Sliding Window book is more of a challenge for 
-a GPU where the parallel availability of faster memory is far more restricted - explict shared memory on 
+a GPU where the availability of multiple regions of faster memory is far more restricted - explict shared memory on 
 a typical GTX/RTX GPU is generally 48-128K, spread over a large number of concurrent GPU threads, 
 3K-50K depending on SIMT capabilities. Fast L2 is also rather limited
 
 ## Requirements
-The requirement is Price: 0.01 -> 999.99 and Quantity: 0.00 -> 10737418.23. The primitive type
+The requirement are Price: 0.01 -> 999.99 and Quantity: 0.00 -> 10737418.23. The primitive type
 int (or int32 - 30 bits required) is sufficiently capable of representing the range of prices
 and quantities if all values are scaled x 100 (which incidentally reduces complications with 
 rounding issues on calculations involving floating point numbers) int32 tends to be a very 
@@ -192,7 +189,7 @@ not necessarily improve throughput (but it usually does) but it should mitigate 
 unpleasant side effects of garbage collection pauses. Where low/zero garbage techniques have 
 little prohibitive cost, they will be used.
 
-Following is a list of requirements met by the implementation:
+Following is a list of requirements met by the implementations:
 * Instrument universe is BTC-USD, ETH-USD, SOL-USD (all symbols captured in a long as 8 bytes, avoiding variable field handling)
 * Price is in the range between “0.01” and “999.99” - scaled to int early in parsing
 * Quantity is in the range between “0.00” and “10737418.23” (fits in 30 bit)
@@ -218,9 +215,9 @@ collection to hold the prices on each side of the book. I used a popular library
 * Only minimal error checking was applied in the core Order Book APi. This is intentional as the library could have uses 
 inside a critical performance loop of a simulation as well as live trading.
 Regular java will deal with most situations using null pointer, subscript checking and other unchecked exceptions.
-However, Some common, easy to check and difficult to trace conditions will be checked but only 
+Some checks will be made to mitigate difficult to trace conditions, but only 
 where the Java standard treatment would likely not pick up a problem and lead to soft failures
-* This is an intentional tradeoff - please wrap this library if you need more. A suitable wrapper has been provided 
+    **This is an intentional tradeoff - please wrap this library if you need more. A suitable wrapper has been provided** 
 
 There are a number of collections that support these characteristics but I have considered only 
 fastutil here - (Eclipse, HPPC, Koloboke) as they are likely to bring equivalent performance characteristics . I have also wrapped an  "Adaptive Radix Tree", a structure both 
@@ -234,9 +231,9 @@ not that environment.
 
 The approach was to implement a generalised version that would operate in a wide range of 
 scenarios, then specialise in order to take advantage of the specification (so restricted data ranges, 
-price locality) One specific choice was **NOT** always to propagate all available data for each order 
+price locality) One specific choice was not to propagate **ALL** available data for each order 
 book entry. This was intentional as the stripped down book meets the stated requirements and remains useful in 
-many other  scenarios where the data is not need. Specifically single entries at a price, int32 values precludes having multiple orders at a level and/or storing stamps and other data. The structure could, in theory,
+many other  scenarios where the additional data (e.g. stamp) is not need. Specifically single entries at a price, int32 values precludes having multiple orders at a level and/or storing stamps and other data. The structure could, in theory,
 be extended to cover the additional features but not without some notable expense. 
 
 ## Verification
@@ -255,8 +252,8 @@ based off real data)  Another step might be to capture actual exchange data, con
 format specified and use that to test the implementation in more realistic conditions. 
 I have supplied a command line utility that can parse a file and process each entry (in examples) as well as some example data captured from Binance 
 
-I have captured some of the performance metrics to give some idea of the capabilities of the
-implementations
+I have included some of the performance metrics to give some idea of the capabilities of each
+implementation
 
 ## Performance
 #### Order Book only - add/delete - batches of 1,000 orders - BooKDirect is by far the fastest when tested in isolation, and generates zero garbage for insertion/updates
@@ -274,7 +271,7 @@ testRawMixed1k                          DIRECT            thrpt         624.437 
 testRawMixed1k:·gc.alloc.rate           DIRECT            thrpt          ≈ 10⁻⁴          MB/sec
 testRawMixed1k:·gc.count                DIRECT            thrpt             ≈ 0          counts
 ```
-#### Book Adaptive Radix Tree - fast, notable garbage (see notes)
+#### BookArt Adaptive Radix Tree - fast, notable garbage (see notes)
 ```
 testRawMixed1k                             ART            thrpt          49.280          ops/ms
 testRawMixed1k:·gc.alloc.rate              ART            thrpt         597.044          MB/sec
@@ -308,21 +305,20 @@ testSplitDecode6:·gc.count                 DEDICATED      thrpt             ≈
 
 ```
 ## Notes
-You can use the targets:
-Mainly gradle, especially for checkstyle, JMH, but basic build/test in Maven
+You can use the following build targets - mainly gradle, especially for checkstyle, JMH, but basic build/test in Maven
 * ./gradlew jmh - to run performance verification tests
 * ./gradlew test - to run unit tests 
 * mvn verify
 * Run a test using 
-  * java -cp target/orderbook-1.0-SNAPSHOT.jar  orderbook.examples.Example1 -levels 9 -file example1.txt
+  * **java -cp target/orderbook-1.0-SNAPSHOT.jar  orderbook.examples.Example1 -levels 9 -file example1.txt**
   * In testing/ there are  number of SOL-USD test files 1k, 10k, 100k & 1M entries and tests with BookArt, BookFastUtil & BooKDirect. 
   Examining the available liquidity (for 1-99 levels) for each book implementation produces the same result, which at least is an indication of consistency 
       
 
 ## Closing observations
-* The bottleneck in the pipeline is currently the parsing of fixed to integral from the variable field input. 
-Whilst not directly in the scope of the Order Book itself this would seem the next place to examine improvements, and i have provided
-one such version that has twice the throughput as a more general version. The bottlneck in decoding may be less critical in  some 
+* The bottleneck in the pipeline is currently the parsing of fixed to integral type from the variable field input. 
+Whilst not directly in the scope of the Order Book implementation itself this would seem a good place to look for improvements, and i have provided
+one such version (Dedicated) that has twice the throughput of the more general version. The bottleneck in decoding may be less critical in  some 
 applications where the order book performance may be the priority, as parsing/decoding of incoming streams are often performed 
 in parallel, whilst matching often takes place in a shared book where the performance requirement may be more critical
 * Per thread on a Ryzen 3900X, **without generating any garbage**:
