@@ -17,9 +17,7 @@ dependencies {
     implementation group: 'org.hdrhistogram', name: 'HdrHistogram', version: '2.1.12'
     implementation group: 'org.decimal4j', name: 'decimal4j', version: '1.0.3'
     implementation group: 'exchange.core2', name: 'collections', version: '0.5.1'
-    implementation group: 'org.agrona', name: 'Agrona', version: '0.9.1'
     implementation group: 'commons-io', name: 'commons-io', version: '2.8.0'
-
 
     testImplementation platform('org.junit:junit-bom:5.9.1')
     testImplementation 'org.junit.jupiter:junit-jupiter'
@@ -34,7 +32,6 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok:1.18.26'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
 
-    implementation 'org.openjdk.jmh:jmh-core:1.36'
     jmhImplementation 'org.openjdk.jmh:jmh-core:1.36'
     annotationProcessor 'org.openjdk.jmh:jmh-generator-annprocess:1.36'
 }
@@ -48,11 +45,11 @@ test {
 }
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
+        languageVersion = JavaLanguageVersion.of(17)
     }
 }
 jmh {
-    benchmarkMode = ['thrpt'] // Benchmark mode. Available modes are: [
+    benchmarkMode = ['thrpt']
     profilers = [ "gc" ]
     warmupIterations = 2
     iterations = 2

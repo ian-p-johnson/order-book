@@ -323,19 +323,13 @@ applications where the order book performance may be the priority, as parsing/de
 in parallel, whilst matching often takes place in a shared book where the performance requirement may be more critical
 * Per thread on a Ryzen 3900X, **without generating any garbage**:
     * BookDirect can reach 600+M updates a second from prepared data - not surprising because it is so targetted (probably more with bounds checking disabled) 
-    * Indexed splitter can process around 30M a second from a string (A faster version could run from a memory mapped CharBuffer) 
+    * Indexed splitter can process around 30M a second from a string (A faster version could run from a memory mapped CharBuffer instead of just reading from a file as Example1 does) 
     * Dedicated decoder + splitter can process around 22M entries a second  
 * The library would benefit from a "Market" concept to act as a factory to access and instantiate Order Books, parameterised by symbol, returning the most 
 appropriate book configuration for that symbol. AT the moment it merely offers a design pattern in **Example1**  
 
-A highly performant but restricted Direct Book has been implemented but has a restricted applicability. A capable,
-lower resource version has been proposed (sliding direct window) but has not yet been implemented. This may maintain much of the performance
-of the Direct book together with reduced resource (memory) utilisation , less memory cache architecture pressure etc, at the cost of added complexity. 
+A highly performant Direct Book has been implemented but has restricted applicability. A capable,
+lower resource version has been proposed (sliding direct window) but has not been implemented here. This may maintain much of the performance
+of the Direct book together with reduced resource (memory) utilisation , less memory/cache pressure etc, at the cost of added complexity. 
 
 <br>Implementation of that version is ongoing ...  
-
-
-
-
-
-

@@ -20,39 +20,36 @@ public class TestSplitter {
         ",,",
         ",="
     };
-    static Splitter better, trivial;
+    static Splitter splitterIndexed, splitterString;
 
     @BeforeAll
     public static void beforeALl() {
-        better = new SplitterIndexed(80);
-        trivial = new SplitterStringSplit();
+        splitterIndexed = new SplitterIndexed(80);
+        splitterString = new SplitterStringSplit();
     }
 
     public static final String REFERENCE_DELIM = "[,=]";
 
     @Test
-    void testTrivial() {
+    void testStringSplit() {
         int n = 0; for (final String testMessage : TEST_MSGS) {
-            testSplitter(trivial, n, TEST_MSGS[n], "[,=]");
+            testSplitter(splitterString, n, TEST_MSGS[n], "[,=]");
             n++;
         }
     }
 
     @Test
-    void testBetter() {
+    void testIndexed() {
         int n = 0; for (final String testMessage : TEST_MSGS) {
-            testSplitter(better, n, TEST_MSGS[n], TEST_DELIMSS[n]);
+            testSplitter(splitterIndexed, n, TEST_MSGS[n], TEST_DELIMSS[n]);
             n++;
         }
     }
 
-    @Test
-    void testPrices() {
-        // "t=1638848595|i=BTC-USD|p=32.99|q=100.00|s=b",
-    }
 
     private static void testSplitter(final Splitter splitter, final int n,
         final String testMessage, final String delim) {
+        // TODO ongoing tests
 //        String[] expected = testMessage.split(REFERENCE_DELIM);
 //        //System.out.printf("case %d: len %d\n", n, expected.length);
 //        Splitter.Result result = splitter.split(testMessage, delim);

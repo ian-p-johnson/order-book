@@ -128,18 +128,6 @@ public class DecodeAndBookBenchmark {
         Decoder decoderDedicated = DecoderDedicated.builder().build();
     }
 
-//    @Benchmark
-//    public void testSet(MyStateBook state, Blackhole blackhole) {
-//        OrderSet prices = state.price_density_2_1k;
-//        selectBook(state);
-//        long sum = 0;
-//        for (int ix=0; ix<prices.n; ix++) {
-//            sum += prices.prices[ix];
-//            sum += prices.quantities[ix]
-//        }
-//        blackhole.consume(sum);
-//    }
-
     private static OrderBook selectBook(MyStateBook state) {
         switch (state.book) {
             case NULL:
@@ -183,7 +171,6 @@ public class DecodeAndBookBenchmark {
     public void testRawMixed1k(MyStateBook state, Blackhole blackhole) {
         final OrderSet prices = state.price_density_2_1k;
         OrderBook book = selectBook(state);
-//        OrderBook book = state.bookSlab;
         //System.out.printf("n = %d\n", prices.n);
         for (int ix = 0; ix < prices.n; ix++) {
             //book = state.bookMap.computeIfAbsent(prices.symbolIds[ix], x -> BookFastUtil.builder().build());
@@ -209,8 +196,6 @@ public class DecodeAndBookBenchmark {
 //        System.out.printf("bids %s: %s offers %s: %s\n",
 //                Arrays.toString(bidPrices), Arrays.toString(bidQty),
 //                Arrays.toString(offerPrices), Arrays.toString(offerQty));
-
-
     }
 
     @Benchmark
