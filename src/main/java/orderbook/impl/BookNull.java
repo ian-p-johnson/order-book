@@ -14,6 +14,11 @@ public class BookNull implements OrderBook {
     private long sumPrice, sumQty, ct;
 
     @Override
+    public int get(final Side side, final int price) {
+        return 0;
+    }
+
+    @Override
     public int depth(final Side side) {
         return 0;
     }

@@ -54,14 +54,14 @@ java {
 jmh {
     benchmarkMode = ['thrpt'] // Benchmark mode. Available modes are: [
     profilers = [ "gc" ]
-    warmupIterations = 1
-    iterations = 1
+    warmupIterations = 2
+    iterations = 2
     fork = 1
     jmhTimeout = "60s"
     timeUnit = "ms"
     failOnError = true
 //    jvm = '/home/ianj/dev/java/zulu8.70.0.23-ca-jdk8.0.372-linux_x64/bin/java'
-    jvm = '/home/ianj/dev/java/zulu11.64.19-ca-jdk11.0.19-linux_x64/bin/java'
+//    jvm = '/home/ianj/dev/java/zulu11.64.19-ca-jdk11.0.19-linux_x64/bin/java'
 //    jvm = '/home/ianj/dev/java/zulu17.42.19-ca-jdk17.0.7-linux_x64/bin/java'
 //    jvm = '/home/ianj/dev/java/zulu19.32.13-ca-jdk19.0.2-linux_x64/bin/java'
 //    jvm = '/home/ianj/dev/java/zulu20.30.11-ca-jdk20.0.1-linux_x64/bin/java'

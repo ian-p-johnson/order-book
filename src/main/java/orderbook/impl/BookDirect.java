@@ -2,6 +2,7 @@ package orderbook.impl;
 
 import lombok.Getter;
 import lombok.ToString;
+import lombok.val;
 import orderbook.OrderBook;
 import orderbook.Side;
 import lombok.Builder;
@@ -53,7 +54,7 @@ public class BookDirect implements OrderBook {
 
     @Override
     public OrderBook add(final Side side, final int price, final int quantity) {
-        //System.out.printf("add %s %d = %d top %d -> %d\n", side, price, quantity, topBidIx, topOfferIx);
+       //System.out.printf("add %s %d = %d top %d -> %d\n", side, price, quantity, topBidIx, topOfferIx);
 
         final int maskedPrice = (int)price;
 
@@ -254,6 +255,20 @@ public class BookDirect implements OrderBook {
             return NO_PRICE;
 
         return (topBidIx + topOfferIx) / 2;
+    }
+    @Override
+    public int get(final Side side, final int price) {
+        final int maskedPrice = (int)price;
+        switch (side) {
+            case BID:
+                int qty = slab.bids[maskedPrice];
+                return qty == 0 ? NO_VALUE : qty;
+            case OFFER:
+                qty = slab.offers[maskedPrice];
+                return qty == 0 ? NO_VALUE : qty;
+            default:
+                throw new IllegalArgumentException("Side not supported: " + side);
+        }
     }
 
     @Override

@@ -13,11 +13,6 @@ import org.openjdk.jmh.infra.Blackhole;
 import java.util.Map;
 
 public class DecodeAndBookBenchmark {
-//    @OutputTimeUnit(TimeUnit.MILLISECONDS)
-//    @Threads(value = THREAD_COUNT)
-//    @Warmup(iterations = WARMUP_COUNT)
-//    @Fork(value = FORK_COUNT)
-//    @Measurement(iterations = ITERATION_COUNT)
 
     public static final String TEST_BASIC[] = {
         "t=1638848595|i=BTC-USD|p=32.99|q=123.00|s=b", // Level 1
@@ -189,6 +184,7 @@ public class DecodeAndBookBenchmark {
         final OrderSet prices = state.price_density_2_1k;
         OrderBook book = selectBook(state);
 //        OrderBook book = state.bookSlab;
+        //System.out.printf("n = %d\n", prices.n);
         for (int ix = 0; ix < prices.n; ix++) {
             //book = state.bookMap.computeIfAbsent(prices.symbolIds[ix], x -> BookFastUtil.builder().build());
             book.add(prices.prices[ix] > 5000 ? Side.BID : Side.OFFER,

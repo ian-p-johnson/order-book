@@ -111,14 +111,15 @@ public class BookArt implements OrderBook {
         return -key;
     }
 
+    @Override
     public int get(final Side side, final int price) {
         switch (side) {
             case BID:
                 final val retBid = bids.get(invert(price)); // Invert the bid
-                return retBid != null ? retBid : NO_PRICE;
+                return retBid != null ? retBid : NO_VALUE;
             case OFFER:
                 final val retOffer = offers.get(price);
-                return retOffer != null ? retOffer : NO_PRICE;
+                return retOffer != null ? retOffer : NO_VALUE;
             default:
                 throw new IllegalArgumentException("Side not supported: " + side);
         }

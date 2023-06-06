@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TestBooks {
 
+
     @Test
     void testWrapper() {
         final BookDirect direct = BookDirect.builder().symbolId(1).build().initialiseSlabs();
@@ -45,6 +46,22 @@ public class TestBooks {
             BookFastUtil.builder().build(),
         };
     }
+    @ParameterizedTest
+    @MethodSource("bookSource")
+    void testGet(OrderBook book) {
+        // Walk up through bid/offers
+        for (int price = 1; price <= 5; price++) {
+            book.add(Side.BID,   50 - price * 2, 10 + price);
+            book.add(Side.OFFER, 50 + price * 2, 20 + price);
+        }
+        assertEquals(OrderBook.NO_VALUE, book.get(Side.BID, 99));
+        assertEquals(OrderBook.NO_VALUE, book.get(Side.OFFER, 99));
+        for (int price = 1; price <= 5; price++) {
+            assertEquals(10 + price, book.get(Side.BID, 50 - price * 2));
+            assertEquals(20 + price, book.get(Side.OFFER, 50 + price * 2));
+        }
+    }
+
     @ParameterizedTest
     @MethodSource("bookSource")
     void testIteration(OrderBook book) {

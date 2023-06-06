@@ -27,6 +27,14 @@ public class BookFastUtil implements OrderBook {
 //    private static boolean trackingDelta = true;
 
     @Override
+    public int get(final Side side, final int price) {
+        final val levels = getLevels(side);
+        final int oldSize = levels.get(price);
+
+        return oldSize > 0 ? oldSize : NO_VALUE;
+    }
+
+    @Override
     public OrderBook add(final Side side, final int price, final int quantity) {
         final val levels = getLevels(side);
 

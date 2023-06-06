@@ -8,6 +8,7 @@ public interface OrderBook {
     }
 
     int NO_PRICE = -1;  // Invalid or no Price
+    int NO_VALUE = -1;  // Invalid or no Quantity
 
     /**
      * Add, Update or Remove a price level from one side of an order book
@@ -75,6 +76,14 @@ public interface OrderBook {
      * @param outQty    A 0 indexed array to extract quantity into- each element corresponds to the same position on outPrices
      */
     void getLevels(Side side, int level, int[] outPrices, int[] outQty);
+
+    /**
+     *
+     * @param side of book
+     * @param price being accessed
+     * @return quantity (or NO
+     */
+    int get(final Side side, final int price);
 
     /**
      * Clears all price./quantities from the book

@@ -89,6 +89,11 @@ public class BookWrap implements OrderBook {
     }
 
     @Override
+    public int get(Side side, int price) {
+        return orderBook.get(side, price);
+    }
+
+    @Override
     public OrderBook clear() {
         return orderBook.clear();
     }
