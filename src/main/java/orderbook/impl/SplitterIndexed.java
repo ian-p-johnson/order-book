@@ -4,6 +4,21 @@ import orderbook.Splitter;
 
 import java.nio.CharBuffer;
 
+/**
+ * A reasonably efficient garbage free string splitter
+ *
+ * Uses a pair of delimiters, expecting the message to alternate between them
+ *
+ * An example of what is being parsed is :
+ *      t=1638848595|i=BTC-USD|p=32.99|q=100.00|s=b
+ *
+ * which is a tagged value representation similar to a simple subset of FIX
+ *
+ * The indexes stored will be the start/end of each field, so an entry for each
+ *   t, 1638848595, i, BTC-USD, p, 32.99, q, 100.00, s, b
+ * (10 fields in all)
+ *
+ */
 public class SplitterIndexed implements Splitter {
 
     int[] split;

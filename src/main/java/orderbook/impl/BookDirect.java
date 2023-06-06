@@ -1,11 +1,10 @@
 package orderbook.impl;
 
+import lombok.Builder;
 import lombok.Getter;
 import lombok.ToString;
-import lombok.val;
 import orderbook.OrderBook;
 import orderbook.Side;
-import lombok.Builder;
 
 import java.util.Arrays;
 
@@ -19,6 +18,13 @@ import java.util.Arrays;
  * "soft"/semantic failure
  * <p>
  * This is an intentional tradeoff - please wrap this library if you need more
+ *
+ * There is also some duplication between iteration and functions in BookUtils
+ *
+ * The implementation in BookUtils is not allocation free and will require an API
+ * change to allow it to be so. For now, we leave allocation free versions here and
+ * consolidate them later
+ *
  */
 @Builder @ToString(onlyExplicitlyIncluded = true)
 public class BookDirect implements OrderBook {
@@ -39,10 +45,12 @@ public class BookDirect implements OrderBook {
 
     @Builder.Default @ToString.Include
     private int depth = 10;
+
     @Builder.Default @ToString.Include
     private int topBidIx = NO_BID, topOfferIx = NO_OFFER;
 
     private Slab slab;
+
     @Getter @ToString.Include
     private long symbolId;
 
@@ -99,7 +107,7 @@ public class BookDirect implements OrderBook {
      * @return depth of book on that side
      */
     @Override
-    public int depth(final Side side) {
+    public int depth(final Side side) { // TODO Consolidate with BookUtils/forEach
         int level = 0;
         switch (side) {
             case BID:
@@ -159,7 +167,7 @@ public class BookDirect implements OrderBook {
      * @return size of book on that side
      */
     @Override
-    public int getSizeUpToLevel(final Side side, int level) {
+    public int getSizeUpToLevel(final Side side, int level) { // TODO Consolidate with BookUtils/forEach
         if (level < 0)
             throw new IllegalArgumentException("level not supported: " + level);
 
@@ -205,7 +213,7 @@ public class BookDirect implements OrderBook {
      * @param outPrices - 0 based output prices
      * @param outQty - 0 based output quantities
      */
-    public void getLevels(final Side side, int level, final int[] outPrices, final int[] outQty) {
+    public void getLevels(final Side side, int level, final int[] outPrices, final int[] outQty) { // TODO Consolidate with BookUtils/forEach
         if (level < 0)
             throw new IllegalArgumentException("level not supported: " + level);
 

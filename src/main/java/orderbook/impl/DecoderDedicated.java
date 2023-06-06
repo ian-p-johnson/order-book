@@ -5,6 +5,10 @@ import orderbook.Side;
 import orderbook.Splitter;
 import lombok.Builder;
 
+/**
+ * A faster decoder, using converters dedicate to the format
+ * Brings better performance than a generalised converter
+ */
 @Builder
 public class DecoderDedicated implements Decoder {
 

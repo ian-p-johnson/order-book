@@ -11,6 +11,11 @@ import lombok.val;
 
 import java.util.Arrays;
 
+/**
+ * An implementation of an Order Book using a FastUtil Int2IntRBTreeMap collection
+ * This is an Int2Int collection mapping prices to a quantity at that price
+ * fastutil has anothe rcollection that has very similar characteristics
+ */
 @Builder @AllArgsConstructor
 public class BookFastUtil implements OrderBook {
 //    public int symbolId;
@@ -105,12 +110,23 @@ public class BookFastUtil implements OrderBook {
             outIx++;
             level--;
         }
+        // Fill any entries left unfilled so far
         Arrays.fill(outPrices, outIx, outPrices.length, NO_PRICE);
         Arrays.fill(outQty, outIx, outQty.length, 0);
     }
 
+    /**
+     * Scan the relevant side for the specified number of levels, accumulating a sum
+     *
+     * There is a similar implementation of this in BookUtils but it is not allocation
+     * free and will require an API change to allow it to be so. For now, we leave this
+     * allocation free version here and consolidate them later
+     * @param side  to access
+     * @param level to descend to
+     * @return the sum of quantities in level scanned
+     */
     @Override
-    public int getSizeUpToLevel(final Side side, int level) {
+    public int getSizeUpToLevel(final Side side, int level) { //TODO Consolidate with BookUtils
         int sum = 0;
         final var levels = getLevels(side).values();
         for (final int quantity : levels) {
@@ -127,7 +143,7 @@ public class BookFastUtil implements OrderBook {
         return (bidTop + bidOffer) / 2;
     }
 
-    public Int2IntSortedMap getLevels(final Side side) {
+    private  Int2IntSortedMap getLevels(final Side side) {
         return side == Side.BID ? bids : offers;
     }
 

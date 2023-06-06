@@ -5,6 +5,12 @@ import lombok.experimental.Accessors;
 import orderbook.OrderBook;
 import orderbook.Side;
 
+/**
+ * A parameter checking wrapper that checks API parameters for legal values. Use this to
+ * protect the book implementation. This allows the primary API to remain efficient to
+ * performance critical clients who are possibly consuming canned/safe/pre-checked data
+ * whilst not sacrificng a level of safety and assistance for a normal client.
+ */
 @Builder @NoArgsConstructor @AllArgsConstructor
 @Accessors(chain = true)
 public class BookWrap implements OrderBook {

@@ -2,11 +2,20 @@ package orderbook;
 
 public interface OrderBook {
 
+    /**
+     * Part of the iteration mechanism - used to pass price levels to the client after a forEach- when they
+     * have sufficient they should return false.
+     *
+     * Any available wil lbe emitted whilst true is returned
+     */
     @FunctionalInterface
     interface PriceLevel {
         boolean more(int entryPx, int entrySize);
     }
 
+    /**
+     * Anything that emits a price/qty will emit this to mean no price/quantity
+     */
     int NO_PRICE = -1;  // Invalid or no Price
     int NO_VALUE = -1;  // Invalid or no Quantity
 
@@ -50,10 +59,6 @@ public interface OrderBook {
      * @return the total number of none 0 levels available - 0 if none
      */
     int depth(Side side);
-    /*
-        Extracts the top levels of an orderbook,copying them into the supplied bid/offer arrays
-        It performs no explicit bounds checking
-     */
 
     /**
      * Iterates through the specified side of the book, stopping

@@ -2,6 +2,10 @@ package orderbook.impl;
 
 import orderbook.Splitter;
 
+/**
+ * A naive String split - slow and allocation noisy
+ * Used a reference in testing
+ */
 public class SplitterStringSplit implements Splitter {
     String[] split;
 

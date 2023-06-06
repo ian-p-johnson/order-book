@@ -2,6 +2,9 @@ package orderbook.impl;
 
 import orderbook.Side;
 
+/**
+ * Some common decoder primitives used in the message specific decoders
+ */
 public class Decoders {
     public static Side toSide(final char ch) {
         switch (ch) {
@@ -10,8 +13,16 @@ public class Decoders {
             case 'c':   return Side.CLEAR;
             default:    return Side.UNKNOWN;
         }
-
     }
+
+    /**
+     * Just extracts a character
+     *
+     * @param c to extract from
+     * @param beginIndex within c
+     * @param endIndex within c
+     * @return extracted char
+     */
     public static char toChar(final CharSequence c, final int beginIndex, final int endIndex) {
         final char ch = c.charAt(beginIndex);
         return ch;
