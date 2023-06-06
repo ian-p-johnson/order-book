@@ -21,6 +21,7 @@ public class BookUtils {
         return getSizeUpToLevel(book, side, level, new WorkingSizeUpToLevel());
     }
     public static int getSizeUpToLevel(final OrderBook book, final Side side, final int level, final WorkingSizeUpToLevel working) {
+        working.ct = working.size = 0;
         book.forEach(side, (price, size) -> {
             //System.out.printf(" %s %d %d\n", side, price, size);
             working.size += size; working.ct++;
@@ -48,6 +49,7 @@ public class BookUtils {
         return getLevelSatisfyingSize(book, side, quantity, new WorkingLevelSatisfyingSize());
     }
     public static int getLevelSatisfyingSize(final OrderBook book, final Side side, final int quantity, final WorkingLevelSatisfyingSize working) {
+        working.ct = working.size = 0;
         book.forEach(side, (price, size) -> {
             //System.out.printf(" %s %d %d\n", side, price, size);
             working.size += size; working.ct++;
