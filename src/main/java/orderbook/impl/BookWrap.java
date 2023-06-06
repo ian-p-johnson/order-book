@@ -59,15 +59,6 @@ public class BookWrap implements OrderBook {
         return orderBook.add(side, price, quantity);
     }
 
-
-    @Override
-    public int getSizeUpToLevel(final Side side, final int level) {
-        if (level < 1 || level > maxLevel)
-            throw new IllegalArgumentException("Invalid level: " + level);
-        checkSide(side);
-        return orderBook.getSizeUpToLevel(side, level);
-    }
-
     @Override
     public int getMidPrice() {
         return orderBook.getMidPrice();

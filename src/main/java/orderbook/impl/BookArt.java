@@ -142,11 +142,6 @@ public class BookArt implements OrderBook {
     }
 
     @Override
-    public int getSizeUpToLevel(final Side side, final int level) {
-        throw new UnsupportedOperationException("getSizeUpToLevel - use BookUtils");
-    }
-
-    @Override
     public int getMidPrice() {
         if (bids.size(Integer.MAX_VALUE) == 0 || offers.size(Integer.MAX_VALUE) == 0)
             return NO_PRICE;

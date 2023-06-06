@@ -1,6 +1,7 @@
 package orderbook;
 
 import orderbook.impl.BookDirect;
+import orderbook.impl.BookUtils;
 import orderbook.impl.DecoderGeneric;
 import orderbook.impl.SplitterIndexed;
 import org.junit.jupiter.api.Test;
@@ -62,11 +63,11 @@ public class TestDirect {
 //            Arrays.toString(bidPrices), Arrays.toString(bidQty),
 //            Arrays.toString(offerPrices), Arrays.toString(offerQty));
 
-        assertEquals(225_00, book.getSizeUpToLevel(Side.BID, 2));
-        assertEquals(423_00, book.getSizeUpToLevel(Side.OFFER, 2));
+        assertEquals(225_00, BookUtils.getSizeUpToLevel(book, Side.BID, 2));
+        assertEquals(423_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 2));
 
-        assertEquals(328_00, book.getSizeUpToLevel(Side.BID, 3));
-        assertEquals(526_00, book.getSizeUpToLevel(Side.OFFER, 3));
+        assertEquals(328_00, BookUtils.getSizeUpToLevel(book, Side.BID, 3));
+        assertEquals(526_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 3));
 
         assertEquals(3305, book.getMidPrice());
     }
@@ -88,13 +89,13 @@ public class TestDirect {
         assertEquals(2, book.depth(Side.BID));
         assertEquals(2, book.depth(Side.OFFER));
 
-        assertEquals(102_00, book.getSizeUpToLevel(Side.BID, 1));
-        assertEquals(205_00, book.getSizeUpToLevel(Side.BID, 2)); // Dropped a level
-        assertEquals(205_00, book.getSizeUpToLevel(Side.BID, 3)); // Nothing at this level
+        assertEquals(102_00, BookUtils.getSizeUpToLevel(book, Side.BID, 1));
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.BID, 2)); // Dropped a level
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.BID, 3)); // Nothing at this level
 
-        assertEquals(102_00, book.getSizeUpToLevel(Side.OFFER, 1));
-        assertEquals(205_00, book.getSizeUpToLevel(Side.OFFER, 2)); // Dropped a level
-        assertEquals(205_00, book.getSizeUpToLevel(Side.OFFER, 3)); // Nothing at this level
+        assertEquals(102_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 1));
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 2)); // Dropped a level
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 3)); // Nothing at this level
     }
 
     private void processMessages(final String[] messages) {

@@ -14,23 +14,46 @@ public class BookUtils {
     private static final int CT = 0;
     private static final int SIZE = 1;
 
-    public static int getSizeUpToLevel(final OrderBook book, final Side side, final int level) {
-        final int[] v = new int[2]; // Anonymously named for a single allocation
-        book.forEach(side, (price, size) -> {
-            //System.out.printf(" %s %d %d\n", side, price, size);
-            v[SIZE] += size; v[CT]++;
-            return v[CT] < level;
-        });
-        return v[SIZE];
+    public static class WorkingSizeUpToLevel {
+        int ct, size;
     }
-    public static int getLevelSatisfyingSize(final OrderBook book, final Side side, final int quantity) {
-        final int[] v = new int[2]; // // Anonymously named for a single allocation
+    public static int getSizeUpToLevel(final OrderBook book, final Side side, final int level) {
+        return getSizeUpToLevel(book, side, level, new WorkingSizeUpToLevel());
+    }
+    public static int getSizeUpToLevel(final OrderBook book, final Side side, final int level, final WorkingSizeUpToLevel working) {
         book.forEach(side, (price, size) -> {
             //System.out.printf(" %s %d %d\n", side, price, size);
-            v[SIZE] += size; v[CT]++;
-            return v[SIZE] < quantity;
+            working.size += size; working.ct++;
+            return working.ct < level;
         });
-        return v[CT];
+        return working.size;
+    }
+
+    public static class WorkingLevelSatisfyingSize {
+        int ct, size;
+    }
+
+    /**
+     * Gets the total size available up to the specified level on that side of the book
+     * An empty price level count as 0 size
+     * An empty price level does not count to the levels consumed
+     * If the side is exhausted, no error will lbe emitted and no further size will be accumulated
+     * Two version, one with passed in working space to avoid allocation
+     *
+     * @param side  to access
+     * @param level to decend to
+     * @return the total size available - 0 if none
+     */
+    public static int getLevelSatisfyingSize(final OrderBook book, final Side side, final int quantity) {
+        return getLevelSatisfyingSize(book, side, quantity, new WorkingLevelSatisfyingSize());
+    }
+    public static int getLevelSatisfyingSize(final OrderBook book, final Side side, final int quantity, final WorkingLevelSatisfyingSize working) {
+        book.forEach(side, (price, size) -> {
+            //System.out.printf(" %s %d %d\n", side, price, size);
+            working.size += size; working.ct++;
+            return working.size < quantity;
+        });
+        return working.ct;
     }
 }
 

@@ -40,11 +40,6 @@ public class BookNull implements OrderBook {
     }
 
     @Override
-    public int getSizeUpToLevel(final Side side, final int level) {
-        return 0;
-    }
-
-    @Override
     public int getMidPrice() {
         return (int)(sumPrice / ct);
     }

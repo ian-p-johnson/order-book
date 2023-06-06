@@ -1,6 +1,7 @@
 package orderbook;
 
 import orderbook.impl.BookFastUtil;
+import orderbook.impl.BookUtils;
 import orderbook.impl.DecoderGeneric;
 import orderbook.impl.SplitterIndexed;
 import org.junit.jupiter.api.Test;
@@ -34,13 +35,13 @@ public class TestDecodeAndBook {
         assertEquals(2, book.depth(Side.BID));
         assertEquals(2, book.depth(Side.OFFER));
 
-        assertEquals(102_00, book.getSizeUpToLevel(Side.BID, 1));
-        assertEquals(205_00, book.getSizeUpToLevel(Side.BID, 2)); // Dropped a level
-        assertEquals(205_00, book.getSizeUpToLevel(Side.BID, 3)); // Nothing at this level
+        assertEquals(102_00, BookUtils.getSizeUpToLevel(book, Side.BID, 1));
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.BID, 2)); // Dropped a level
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.BID, 3)); // Nothing at this level
 
-        assertEquals(102_00, book.getSizeUpToLevel(Side.OFFER, 1));
-        assertEquals(205_00, book.getSizeUpToLevel(Side.OFFER, 2)); // Dropped a level
-        assertEquals(205_00, book.getSizeUpToLevel(Side.OFFER, 3)); // Nothing at this level
+        assertEquals(102_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 1));
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 2)); // Dropped a level
+        assertEquals(205_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 3)); // Nothing at this level
     }
 
     @Test
@@ -55,13 +56,13 @@ public class TestDecodeAndBook {
         assertEquals(2, book.depth(Side.BID));
         assertEquals(2, book.depth(Side.OFFER));
 
-        assertEquals(123_00, book.getSizeUpToLevel(Side.BID, 1));
-        assertEquals(226_00, book.getSizeUpToLevel(Side.BID, 2)); // Dropped a level
-        assertEquals(226_00, book.getSizeUpToLevel(Side.BID, 3)); // Nothing at this level
+        assertEquals(123_00, BookUtils.getSizeUpToLevel(book, Side.BID, 1));
+        assertEquals(226_00, BookUtils.getSizeUpToLevel(book, Side.BID, 2)); // Dropped a level
+        assertEquals(226_00, BookUtils.getSizeUpToLevel(book, Side.BID, 3)); // Nothing at this level
 
-        assertEquals(321_00, book.getSizeUpToLevel(Side.OFFER, 1));
-        assertEquals(424_00, book.getSizeUpToLevel(Side.OFFER, 2)); // Dropped a level
-        assertEquals(424_00, book.getSizeUpToLevel(Side.OFFER, 3)); // Nothing at this level
+        assertEquals(321_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 1));
+        assertEquals(424_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 2)); // Dropped a level
+        assertEquals(424_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 3)); // Nothing at this level
     }
 
     @Test
@@ -72,14 +73,14 @@ public class TestDecodeAndBook {
             "t=1638848595|i=BTC-USD|p=33.13|q=109.00|s=a", // Level 3 mod
         });
 
-        assertEquals(123_00, book.getSizeUpToLevel(Side.BID, 1));
-        assertEquals(321_00, book.getSizeUpToLevel(Side.OFFER, 1));
+        assertEquals(123_00, BookUtils.getSizeUpToLevel(book, Side.BID, 1));
+        assertEquals(321_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 1));
 
-        assertEquals(225_00, book.getSizeUpToLevel(Side.BID, 2));
-        assertEquals(423_00, book.getSizeUpToLevel(Side.OFFER, 2));
+        assertEquals(225_00, BookUtils.getSizeUpToLevel(book, Side.BID, 2));
+        assertEquals(423_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 2));
 
-        assertEquals(334_00, book.getSizeUpToLevel(Side.BID, 3)); // modified
-        assertEquals(532_00, book.getSizeUpToLevel(Side.OFFER, 3)); // modified
+        assertEquals(334_00, BookUtils.getSizeUpToLevel(book, Side.BID, 3)); // modified
+        assertEquals(532_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 3)); // modified
 
         assertEquals(3305, book.getMidPrice());
     }
@@ -90,14 +91,14 @@ public class TestDecodeAndBook {
         assertEquals(3, book.depth(Side.BID));
         assertEquals(3, book.depth(Side.OFFER));
 
-        assertEquals(12300, book.getSizeUpToLevel(Side.BID, 1));
-        assertEquals(32100, book.getSizeUpToLevel(Side.OFFER, 1));
+        assertEquals(12300, BookUtils.getSizeUpToLevel(book, Side.BID, 1));
+        assertEquals(32100, BookUtils.getSizeUpToLevel(book, Side.OFFER, 1));
 
-        assertEquals(225_00, book.getSizeUpToLevel(Side.BID, 2));
-        assertEquals(423_00, book.getSizeUpToLevel(Side.OFFER, 2));
+        assertEquals(225_00, BookUtils.getSizeUpToLevel(book, Side.BID, 2));
+        assertEquals(423_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 2));
 
-        assertEquals(328_00, book.getSizeUpToLevel(Side.BID, 3));
-        assertEquals(526_00, book.getSizeUpToLevel(Side.OFFER, 3));
+        assertEquals(328_00, BookUtils.getSizeUpToLevel(book, Side.BID, 3));
+        assertEquals(526_00, BookUtils.getSizeUpToLevel(book, Side.OFFER, 3));
 
         assertEquals(3305, book.getMidPrice());
     }

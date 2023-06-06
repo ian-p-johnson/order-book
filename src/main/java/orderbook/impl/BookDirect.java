@@ -163,52 +163,6 @@ public class BookDirect implements OrderBook {
      * Consider changing the api to support passed in state
      * An iterater is not garbage free
      * @param side
-     * @param level max level to descend to
-     * @return size of book on that side
-     */
-    @Override
-    public int getSizeUpToLevel(final Side side, int level) { // TODO Consolidate with BookUtils/forEach
-        if (level < 0)
-            throw new IllegalArgumentException("level not supported: " + level);
-
-        int sum = 0;
-        switch (side) {
-            case BID:
-                final int[] bids = slab.bids;
-                int bidIx = (int)topBidIx;
-                while (level > 0 && bidIx >= 0) {
-                    final int qty = bids[bidIx];
-                    if (qty != 0) {
-                        sum += qty;
-                        level--;
-                    }
-                    bidIx--;
-                }
-                break;
-            case OFFER:
-                final int[] offers = slab.offers;
-                int offerIx = (int)topOfferIx;
-                while (level > 0 && offerIx < depth) {
-                    final int qty = offers[offerIx];
-                    if (qty != 0) {
-                        sum += qty;
-                        level--;
-                    }
-                    offerIx++;
-                }
-                break;
-            default:
-                throw new IllegalArgumentException("Side not supported: " + side);
-        }
-        return sum;
-    }
-
-
-    /**
-     * This duplicates the iteration loop,but it is, at least, garbage free
-     * Consider changing the api to support passed in state
-     * An iterater is not garbage free
-     * @param side
      * @param level - to decend to
      * @param outPrices - 0 based output prices
      * @param outQty - 0 based output quantities

@@ -34,18 +34,6 @@ public interface OrderBook {
     OrderBook add(Side side, int price, int quantity);
 
     /**
-     * Gets the total size available up to the specified level on that side of the book
-     * An empty price level count as 0 size
-     * An empty price level does not count to the levels consumed
-     * If the side is exhausted, no error wil lbe emitted and no further size will be accumulated
-     *
-     * @param side  to access
-     * @param level to decend to
-     * @return the total size available - 0 if none
-     */
-    int getSizeUpToLevel(Side side, int level);
-
-    /**
      * Derives the mid-price from top of book bid/ask - applying FLOOR rounding
      *
      * @return Could return NO_PRICE if either a bid or offer is not present

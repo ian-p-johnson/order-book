@@ -70,14 +70,9 @@ public class Example1 {
                     final var book = bookMap.computeIfAbsent(symbolId, x -> {
                         final String symbol = split.sequence(3).toString();
                         symbolMap.put(symbolId, symbol);
-//                        final OrderBook newBook = BookArt.builder()
-//                            .maxIterationLevel(99)
-//                            .build().init();
+                        final OrderBook newBook = BookArt.builder().maxIterationLevel(99).build().init();
 //                      final OrderBook newBook = BookFastUtil.builder().build();
-                        final OrderBook newBook = BookDirect.builder()
-                            .symbolId(symbolId)
-                            .depth(1_000_00)
-                            .build().initialiseSlabs();
+//                        final OrderBook newBook = BookDirect.builder().symbolId(symbolId).depth(1_000_00).build().initialiseSlabs();
                         System.out.printf("symbol %s -> %s\n", symbol, newBook);
                         return newBook;
                     });
@@ -96,6 +91,7 @@ public class Example1 {
                 e.printStackTrace();
                 throw e;
             }
+        var working = new BookUtils.WorkingSizeUpToLevel();
         for (final var book: bookMap.values()) {
             //System.out.printf("%s: %s\n", symbolMap.get(book.getSymbolId()),  book);
             final int[] bidPrices = new int[levels], bidQty = new int[levels];
@@ -107,8 +103,8 @@ public class Example1 {
                 Arrays.toString(offerPrices), Arrays.toString(offerQty));
             for (int level = 1; level <= levels; level++) {
                 System.out.printf("  L%d ", level);
-                System.out.printf("  %d %s ", BookUtils.getSizeUpToLevel(book, Side.BID, level), Side.BID);
-                System.out.printf("  %d %s\n", BookUtils.getSizeUpToLevel(book, Side.OFFER, level), Side.OFFER);
+                System.out.printf("  %d %s ", BookUtils.getSizeUpToLevel(book, Side.BID, level), Side.BID, working);
+                System.out.printf("  %d %s\n", BookUtils.getSizeUpToLevel(book, Side.OFFER, level), Side.OFFER, working);
             }
         }
     }
