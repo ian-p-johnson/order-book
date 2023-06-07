@@ -103,8 +103,8 @@ public class Example1 {
                 Arrays.toString(offerPrices), Arrays.toString(offerQty));
             for (int level = 1; level <= levels; level++) {
                 System.out.printf("  L%d ", level);
-                System.out.printf("  %d %s ", BookUtils.getSizeUpToLevel(book, Side.BID, level), Side.BID, working);
-                System.out.printf("  %d %s\n", BookUtils.getSizeUpToLevel(book, Side.OFFER, level), Side.OFFER, working);
+                System.out.printf("  %d %s ", BookUtils.getSizeUpToLevel(book, Side.BID, level), Side.BID);
+                System.out.printf("  %d %s\n", BookUtils.getSizeUpToLevel(book, Side.OFFER, level), Side.OFFER);
             }
         }
     }
