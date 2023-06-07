@@ -91,7 +91,7 @@ public class Example1 {
                 e.printStackTrace();
                 throw e;
             }
-        var working = new BookUtils.WorkingSizeUpToLevel();
+        final var working = new BookUtils.WorkingSizeUpToLevel();
         for (final var book: bookMap.values()) {
             //System.out.printf("%s: %s\n", symbolMap.get(book.getSymbolId()),  book);
             final int[] bidPrices = new int[levels], bidQty = new int[levels];
