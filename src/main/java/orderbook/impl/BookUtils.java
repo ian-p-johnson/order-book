@@ -1,7 +1,10 @@
 package orderbook.impl;
 
+import lombok.ToString;
 import orderbook.OrderBook;
 import orderbook.Side;
+
+import java.util.Arrays;
 
 /**
  * General algorithms to traverse the book according to some criteria
@@ -14,6 +17,7 @@ public class BookUtils {
     private static final int CT = 0;
     private static final int SIZE = 1;
 
+    @ToString
     public static class WorkingSizeUpToLevel {
         int ct, size;
     }
@@ -21,6 +25,7 @@ public class BookUtils {
         return getSizeUpToLevel(book, side, level, new WorkingSizeUpToLevel());
     }
     public static int getSizeUpToLevel(final OrderBook book, final Side side, final int level, final WorkingSizeUpToLevel working) {
+        // TODO How do we avoid allocating a closure to access WorkingSizeUpToLevel
         working.ct = working.size = 0;
         book.forEach(side, (price, size) -> {
             //System.out.printf(" %s %d %d\n", side, price, size);
@@ -30,6 +35,7 @@ public class BookUtils {
         return working.size;
     }
 
+    @ToString
     public static class WorkingLevelSatisfyingSize {
         int ct, size;
     }
@@ -48,7 +54,8 @@ public class BookUtils {
     public static int getLevelSatisfyingSize(final OrderBook book, final Side side, final int quantity) {
         return getLevelSatisfyingSize(book, side, quantity, new WorkingLevelSatisfyingSize());
     }
-    public static int getLevelSatisfyingSize(final OrderBook book, final Side side, final int quantity, final WorkingLevelSatisfyingSize working) {
+    public static int getLevelSatisfyingSize(final OrderBook book, final Side side, final int quantity,
+            final WorkingLevelSatisfyingSize working) {
         working.ct = working.size = 0;
         book.forEach(side, (price, size) -> {
             //System.out.printf(" %s %d %d\n", side, price, size);
@@ -57,5 +64,55 @@ public class BookUtils {
         });
         return working.ct;
     }
+
+
+
+    public static class WorkingLevels {
+        int ct, size;
+    }
+//    public void getLevels(final Side side, int level, final int[] outPrices, final int[] outQty) { // TODO Consolidate with BookUtils/forEach
+//        if (level < 0)
+//            throw new IllegalArgumentException("level not supported: " + level);
+//
+//        switch (side) {
+//            case BID:
+//                final int[] bids = slab.bids;
+//                int bidIx = (int)topBidIx;
+//                int outIx = 0;
+//                while (level > 0 && bidIx >= 0) {
+//                    final int qty = bids[bidIx];
+//                    if (qty != 0) {
+//                        outPrices[outIx] = bidIx;
+//                        outQty[outIx] = qty;
+//                        outIx++;
+//                        level--;
+//                    }
+//                    bidIx--;
+//                }
+//                Arrays.fill(outPrices, outIx, outPrices.length, NO_PRICE);
+//                Arrays.fill(outQty, outIx, outQty.length, 0);
+//                break;
+//            case OFFER:
+//                final int[] offers = slab.offers;
+//                int offerIx = (int)topOfferIx;
+//                outIx = 0;
+//                while (level > 0 && offerIx < depth) {
+//                    final int qty = offers[offerIx];
+//                    if (qty != 0) {
+//                        outPrices[outIx] = offerIx;
+//                        outQty[outIx] = qty;
+//                        outIx++;
+//                        level--;
+//                    }
+//                    offerIx++;
+//                }
+//                Arrays.fill(outPrices, outIx, outPrices.length, NO_PRICE);
+//                Arrays.fill(outQty, outIx, outQty.length, 0);
+//                break;
+//            default:
+//                throw new IllegalArgumentException("Side not supported: " + side);
+//        }
+//    }
+
 }
 
