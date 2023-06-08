@@ -326,7 +326,8 @@ in parallel, whilst matching often takes place in a shared book where the perfor
     * Indexed splitter can process around 30M a second from a string (A faster version could run from a memory mapped CharBuffer instead of just reading from a file as Example1 does) 
     * Dedicated decoder + splitter can process around 22M entries a second  
 * The library would benefit from a "Market" concept to act as a factory to access and instantiate Order Books, parameterised by symbol, returning the most 
-appropriate book configuration for that symbol. AT the moment it merely offers a design pattern in **Example1**  
+appropriate book configuration for that symbol. AT the moment it merely offers a design pattern in **Example1**
+* The quantities are currently sized to fit in the the current requirement at around 30 bits. For many usages this can be reduced significantly - for simulations even 8 bits is really useful as long as you don't use it to represent a linear range. This alone can reduce the resource footprint by 4.  
 
 A highly performant Direct Book has been implemented but has restricted applicability. A capable,
 lower resource version has been proposed (sliding direct window) but has not been implemented here. This may maintain much of the performance

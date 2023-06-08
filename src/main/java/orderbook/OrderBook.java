@@ -76,7 +76,7 @@ public interface OrderBook {
      * @param price being accessed
      * @return quantity (or NO
      */
-    int get(final Side side, final int price);
+    int get(Side side, int price);
 
     /**
      * Clears all price./quantities from the book

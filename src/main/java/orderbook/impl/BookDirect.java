@@ -107,7 +107,7 @@ public class BookDirect implements OrderBook {
      * @return depth of book on that side
      */
     @Override
-    public int depth(final Side side) { // TODO Consolidate with BookUtils/forEach
+    public int depth(final Side side) { // TODO Consider ccnsolidation with BookUtils/forEach
         int level = 0;
         switch (side) {
             case BID:
