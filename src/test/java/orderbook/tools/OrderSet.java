@@ -59,6 +59,7 @@ public class OrderSet {
     public static final char ADD = 0;
     public static final char REMOVE = 1;
     public static final char CHANGE = 2;
+    public static final char ACCESS = 3;
 
     public OrderSet generate() {
         final IntList pricesList = new IntArrayList(n);

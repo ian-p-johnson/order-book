@@ -52,6 +52,10 @@ public class DecodeAndBookBenchmark {
         GENERIC,
         DEDICATED;
     }
+    public enum AccessPattern {
+        DENSE,
+        LOOSE,
+    }
 
     static String[] symbolUniverse = new String[]{"BTC-USD", "ETH-USD", "SOL-USD"};
 
@@ -59,47 +63,57 @@ public class DecodeAndBookBenchmark {
     public static class MyStateBook {
         @Param({"FASTUTIL", "DIRECT", "ART", "NULL"})
         public Book book;
+        @Param({"DENSE", "LOOSE"})
+        AccessPattern accessPattern;
+        BookUtils.WorkingSizeUpToLevel wSizeUpToLevel = new BookUtils.WorkingSizeUpToLevel();
 
-        Splitter splitter = new SplitterIndexed(20);
-        DecoderGeneric decoder = DecoderGeneric.builder().build();
-        Long2ObjectMap<OrderBook> bookMap = new Long2ObjectArrayMap<>();
+
         OrderBook bookLong2Long = BookFastUtil.builder().build();
         OrderBook bookNull = BookNull.builder().build();
         OrderBook bookART = BookArt.builder().usePooling(true).build().init();
         OrderBook bookARTNoPool = BookArt.builder().usePooling(false).build().init();
         BookDirect bookDirect = (BookDirect)BookDirect.builder()
-            .depth(10_000)
-            .symbolId(1)
-            .build().initialiseSlabs();
+                .depth(10_000)
+                .symbolId(1)
+                .build().initialiseSlabs();
+
+        Splitter splitter = new SplitterIndexed(20);
+        DecoderGeneric decoder = DecoderGeneric.builder().build();
+
+        Long2ObjectMap<OrderBook> bookMap = new Long2ObjectArrayMap<>();
+
         Map<Integer, Integer> type40_20_30 = Map.of(
             0, 40,  // 40 / Add
-            1, 20,      // 20 / Change
-            2, 30);
+            1, 20,  // 20 / Change
+            2, 30,  // 30 // Delete
+            3, 10   // 10 // Access
+        );
         Map<Integer, Integer> symbols = Map.of(
             0, 1,  // 30% BTC-USD
             1, 1,      // 30% ETH-USD
             2, 1);     // 30% SOL-USD
-        OrderSet price_density_2_1k = OrderSet.builder()
+
+        OrderSet accessLoose = OrderSet.builder()
             .typeDistribution(type40_20_30)     // 30 / Remove
-            .priceDistribution(
-            Map.of(
-            10, 40, // 40% / 10
-            1_00, 40,   // 40% / 100
-            5_00, 15,   // 15% / 500
-            40_00, 5))  //  5% / 1000
+            .priceDistribution( Map.of(
+                10, 40, // 40% / 10
+                1_00, 40,   // 40% / 100
+                5_00, 15,   // 15% / 500
+                40_00, 5))  //  5% / 1000
             .symbolDistribution(symbols)
             .symbols(symbolUniverse)
             .priceBase(5_000).priceRange(4_000)
             .qtyBase(10_00).qtyRange(1_00)
             .n(1_000)
             .build().generate();
-        OrderSet getPrice_density_1_1k_1k = OrderSet.builder()
+
+        OrderSet accessTight = OrderSet.builder()
             .typeDistribution(type40_20_30)     // 30 / Remove
             .priceDistribution(Map.of(
-            16, 80, // 80 / 16
-            1_00, 30,   // 30 / 100
-            5_00, 15,   // 15 / 500
-            40_00, 5))  //  5 / 1000
+                16, 80, // 80% / 16
+                1_00, 13,   // 13% / 100
+                5_00, 5,   //  5% / 500
+                40_00, 2))  //  2% / 1000
             .symbolDistribution(symbols)
             .symbols(symbolUniverse)
             .priceBase(5_000).priceRange(4_000)
@@ -167,16 +181,19 @@ public class DecodeAndBookBenchmark {
         }
     }
 
+    private static OrderSet selectOrderSet(MyStateBook state) {
+        var orderSet = switch (state.accessPattern) {
+            case DENSE -> state.accessTight;
+            case LOOSE -> state.accessLoose;
+        };
+        return orderSet;
+    }
     @Benchmark
     public void testRawMixed1k(MyStateBook state, Blackhole blackhole) {
-        final OrderSet prices = state.price_density_2_1k;
+        final OrderSet prices = selectOrderSet(state);
         OrderBook book = selectBook(state);
         //System.out.printf("n = %d\n", prices.n);
-        for (int ix = 0; ix < prices.n; ix++) {
-            //book = state.bookMap.computeIfAbsent(prices.symbolIds[ix], x -> BookFastUtil.builder().build());
-            book.add(prices.prices[ix] > 5000 ? Side.BID : Side.OFFER,
-                prices.prices[ix], prices.quantities[ix]);
-        }
+        insertOrders(prices, book, state.wSizeUpToLevel);
 //        System.out.printf("%3s:%3s\n", "B", "O");
 //        for (var _book: state.bookMap.values())
 //            System.out.printf("%3d:%3d\n", _book.depth(Side.BID), _book.depth(Side.BID));
@@ -198,7 +215,24 @@ public class DecodeAndBookBenchmark {
 //                Arrays.toString(offerPrices), Arrays.toString(offerQty));
     }
 
-    @Benchmark
+    private static void insertOrders(OrderSet orders, OrderBook book, BookUtils.WorkingSizeUpToLevel working) {
+        for (int ix = 0; ix < orders.n; ix++) {
+            switch (orders.op[ix]) {
+                case OrderSet.ACCESS:
+                    // 1. 14.2MB /2688 1x working
+                    // 2. 75.2MB/ 4416 2x working
+                    // 3. 115MB/  5376 New working
+                    //BookUtils.getSizeUpToLevel(book, Side.BID, 5);
+                    BookUtils.getSizeUpToLevel(book, Side.OFFER, 5, working);
+                    break;
+                default:
+                    book.add(orders.prices[ix] > 5000 ? Side.BID : Side.OFFER,
+                            orders.prices[ix], orders.quantities[ix]);
+            }
+        }
+    }
+
+    //@Benchmark
     public void testSplit6(final MyStateSplit state, final Blackhole blackhole) {
         final Splitter splitter = selectSplitter(state);
         for (int ix = 0; ix < TEST_BASIC.length; ix++) {
@@ -207,7 +241,7 @@ public class DecodeAndBookBenchmark {
         }
     }
 
-    @Benchmark
+    //@Benchmark
     public void testSplitDecode6(final MyStateDecode state, final Blackhole blackhole) {
         final Decoder decoder = selectDecode(state);
         final Splitter splitter = state.splitter;
