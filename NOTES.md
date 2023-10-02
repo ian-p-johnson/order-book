@@ -1,1 +1,1 @@
-# First dev notes 
+# Generic Primitive Direct
